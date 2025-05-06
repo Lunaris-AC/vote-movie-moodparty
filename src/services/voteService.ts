@@ -1,0 +1,36 @@
+
+import { VoteData } from '../types/movie';
+
+// Cache to store IP addresses that have already voted
+const votedIPs: Set<string> = new Set();
+
+export const checkIPVoted = async (): Promise<string> => {
+  try {
+    // Using a free IP API to get the user's IP
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    console.error('Error fetching IP:', error);
+    return '';
+  }
+};
+
+export const submitVote = async (voteData: VoteData): Promise<{ success: boolean; message: string }> => {
+  // Check if this IP has already voted
+  if (votedIPs.has(voteData.ipAddress)) {
+    return { 
+      success: false, 
+      message: "You've already voted! Only one vote per person is allowed."
+    };
+  }
+
+  // In a real app, this would send data to a backend
+  // For this demo, we just simulate a successful vote
+  votedIPs.add(voteData.ipAddress);
+  
+  return { 
+    success: true, 
+    message: "Your vote has been counted! Thanks for participating!" 
+  };
+};
