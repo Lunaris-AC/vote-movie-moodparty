@@ -1,53 +1,87 @@
 
-import { useState } from 'react';
-import { movies as initialMovies } from '@/data/movies';
-import { Movie } from '@/types/movie';
+import { useState, useEffect } from 'react';
+import { Film } from '@/types/movie';
 import MovieCard from '@/components/MovieCard';
 import MovieDetail from '@/components/MovieDetail';
+import { getFilms } from '@/services/filmService';
+import { useToast } from '@/components/ui/use-toast';
 
-const MovieVote = () => {
-  const [movies, setMovies] = useState<Movie[]>(initialMovies);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+const VoteFilms = () => {
+  const [films, setFilms] = useState<Film[]>([]);
+  const [filmSelectionne, setFilmSelectionne] = useState<Film | null>(null);
+  const [chargement, setChargement] = useState(true);
+  const { toast } = useToast();
   
-  const totalVotes = movies.reduce((sum, movie) => sum + movie.votes, 0);
+  const totalVotes = films.reduce((sum, film) => sum + film.votes, 0);
   
-  const handleMovieSelect = (movie: Movie) => {
-    setSelectedMovie(movie);
+  useEffect(() => {
+    const chargerFilms = async () => {
+      try {
+        const donneesFilms = await getFilms();
+        setFilms(donneesFilms);
+      } catch (error) {
+        console.error('Erreur lors du chargement des films:', error);
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les films. Veuillez réessayer plus tard.",
+        });
+      } finally {
+        setChargement(false);
+      }
+    };
+    
+    chargerFilms();
+  }, [toast]);
+  
+  const handleFilmSelect = (film: Film) => {
+    setFilmSelectionne(film);
   };
   
-  const handleVote = (movieId: number) => {
-    setMovies(movies.map(movie => 
-      movie.id === movieId 
-        ? { ...movie, votes: movie.votes + 1 } 
-        : movie
+  const handleVote = (filmId: string) => {
+    setFilms(films.map(film => 
+      film.id === filmId 
+        ? { ...film, votes: film.votes + 1 } 
+        : film
     ));
   };
   
   const handleBackToGrid = () => {
-    setSelectedMovie(null);
+    setFilmSelectionne(null);
   };
+
+  if (chargement) {
+    return (
+      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-cinema-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-gray-300">Chargement des films...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-white mb-4">Movie Vote Party</h1>
-        <p className="text-xl text-gray-300">Vote for your favorite movie and see the results in real-time!</p>
+        <h1 className="text-4xl font-bold text-white mb-4">Soirée Vote de Films</h1>
+        <p className="text-xl text-gray-300">Votez pour votre film préféré et voyez les résultats en temps réel !</p>
       </div>
       
-      {selectedMovie ? (
+      {filmSelectionne ? (
         <MovieDetail 
-          movie={selectedMovie} 
+          film={filmSelectionne} 
           onBack={handleBackToGrid} 
           onVote={handleVote}
           totalVotes={totalVotes}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {movies.map(movie => (
+          {films.map(film => (
             <MovieCard 
-              key={movie.id} 
-              movie={movie} 
-              onSelect={handleMovieSelect}
+              key={film.id} 
+              film={film} 
+              onSelect={handleFilmSelect}
               totalVotes={totalVotes}
             />
           ))}
@@ -57,4 +91,4 @@ const MovieVote = () => {
   );
 };
 
-export default MovieVote;
+export default VoteFilms;

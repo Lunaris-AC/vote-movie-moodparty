@@ -1,15 +1,24 @@
 
-export interface Movie {
-  id: number;
-  title: string;
+export interface Film {
+  id: string;
+  titre: string;
   description: string;
   image: string;
-  trailerUrl: string;
+  trailer_url: string;
   votes: number;
+  created_at: string;
+}
+
+export interface Vote {
+  id: string;
+  film_id: string;
+  nom_votant: string;
+  adresse_ip: string;
+  created_at: string;
 }
 
 export interface VoteData {
-  movieId: number;
-  voterName: string;
-  ipAddress: string;
+  filmId: string;
+  nomVotant: string;
+  adresseIP: string;
 }

@@ -9,7 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      films: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          image: string
+          titre: string
+          trailer_url: string
+          votes: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          image: string
+          titre: string
+          trailer_url: string
+          votes?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          titre?: string
+          trailer_url?: string
+          votes?: number
+        }
+        Relationships: []
+      }
+      votes: {
+        Row: {
+          adresse_ip: string
+          created_at: string
+          film_id: string
+          id: string
+          nom_votant: string
+        }
+        Insert: {
+          adresse_ip: string
+          created_at?: string
+          film_id: string
+          id?: string
+          nom_votant: string
+        }
+        Update: {
+          adresse_ip?: string
+          created_at?: string
+          film_id?: string
+          id?: string
+          nom_votant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_film_id_fkey"
+            columns: ["film_id"]
+            isOneToOne: false
+            referencedRelation: "films"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
