@@ -1,4 +1,3 @@
-
 import { VoteData } from '../types/movie';
 
 // Cache to store IP addresses that have already voted
@@ -16,7 +15,23 @@ export const checkIPVoted = async (): Promise<string> => {
   }
 };
 
+export const hasVoted = (): boolean => {
+  return localStorage.getItem('hasVoted') === 'true';
+};
+
+export const setVoted = (): void => {
+  localStorage.setItem('hasVoted', 'true');
+};
+
 export const submitVote = async (voteData: VoteData): Promise<{ success: boolean; message: string }> => {
+  // Check if user has already voted
+  if (hasVoted()) {
+    return { 
+      success: false, 
+      message: "Vous avez déjà voté ! Un seul vote par personne est autorisé."
+    };
+  }
+
   // Check if this IP has already voted
   if (votedIPs.has(voteData.adresseIP)) {
     return { 
@@ -28,6 +43,7 @@ export const submitVote = async (voteData: VoteData): Promise<{ success: boolean
   // In a real app, this would send data to a backend
   // For this demo, we just simulate a successful vote
   votedIPs.add(voteData.adresseIP);
+  setVoted();
   
   return { 
     success: true, 
