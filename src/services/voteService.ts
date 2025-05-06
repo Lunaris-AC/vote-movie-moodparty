@@ -18,19 +18,19 @@ export const checkIPVoted = async (): Promise<string> => {
 
 export const submitVote = async (voteData: VoteData): Promise<{ success: boolean; message: string }> => {
   // Check if this IP has already voted
-  if (votedIPs.has(voteData.ipAddress)) {
+  if (votedIPs.has(voteData.adresseIP)) {
     return { 
       success: false, 
-      message: "You've already voted! Only one vote per person is allowed."
+      message: "Vous avez déjà voté ! Un seul vote par personne est autorisé."
     };
   }
 
   // In a real app, this would send data to a backend
   // For this demo, we just simulate a successful vote
-  votedIPs.add(voteData.ipAddress);
+  votedIPs.add(voteData.adresseIP);
   
   return { 
     success: true, 
-    message: "Your vote has been counted! Thanks for participating!" 
+    message: "Votre vote a été comptabilisé ! Merci de votre participation!" 
   };
 };

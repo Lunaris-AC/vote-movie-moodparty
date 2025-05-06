@@ -74,15 +74,8 @@ export const soumettreVote = async (voteData: VoteData): Promise<{ succes: boole
     };
   }
 
-  // Mettre à jour le compteur de votes du film
-  const { error: updateError } = await supabase.rpc('increment_film_votes', {
-    film_id: voteData.filmId
-  });
-
-  if (updateError) {
-    console.error('Erreur lors de la mise à jour du compteur de votes:', updateError);
-    
-    // Comme alternative, mettons à jour directement le film
+  try {
+    // Mettre à jour le compteur de votes du film directement
     const { data: filmData } = await supabase
       .from('films')
       .select('votes')
@@ -90,19 +83,25 @@ export const soumettreVote = async (voteData: VoteData): Promise<{ succes: boole
       .single();
     
     if (filmData) {
-      const { error: directUpdateError } = await supabase
+      const { error: updateError } = await supabase
         .from('films')
         .update({ votes: filmData.votes + 1 })
         .eq('id', voteData.filmId);
       
-      if (directUpdateError) {
-        console.error('Erreur lors de la mise à jour directe du compteur:', directUpdateError);
+      if (updateError) {
+        console.error('Erreur lors de la mise à jour du compteur:', updateError);
         return {
           succes: false,
           message: "Votre vote a été enregistré, mais une erreur est survenue lors de la mise à jour du compteur."
         };
       }
     }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du compteur de votes:', error);
+    return {
+      succes: false,
+      message: "Votre vote a été enregistré, mais une erreur est survenue lors de la mise à jour du compteur."
+    };
   }
 
   return {
